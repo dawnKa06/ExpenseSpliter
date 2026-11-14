@@ -1,5 +1,9 @@
 """Simple Expense Splitter - a beginner-friendly terminal app."""
 
+import csv
+
+EXPORT_FILE = "expense_history.csv"
+
 
 def get_total_expense():
     """Ask for the total expense until the user enters a valid, non-negative number."""
@@ -90,6 +94,42 @@ def show_history(history):
     print("---------------------------")
 
 
+def export_history_to_csv(history):
+    """Save the calculation history to expense_history.csv (in the current folder)."""
+    if not history:
+        print("There is no calculation history to export yet.")
+        return
+
+    try:
+        with open(EXPORT_FILE, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                [
+                    "Expense Amount",
+                    "Tip Percentage",
+                    "Number of People",
+                    "Final Amount Per Person",
+                ]
+            )
+            for entry in history:
+                writer.writerow(
+                    [
+                        f"{entry['expense']:.2f}",
+                        f"{entry['tip_percent']:.2f}",
+                        entry["people"],
+                        f"{entry['share']:.2f}",
+                    ]
+                )
+    except OSError:
+        print(
+            f"Sorry, the history could not be saved to {EXPORT_FILE}. "
+            "If the file is open in another program, please close it and try again."
+        )
+        return
+
+    print(f"Success! Exported {len(history)} calculation(s) to {EXPORT_FILE}.")
+
+
 def ask_to_repeat():
     """Ask if the user wants to do another calculation. Returns True or False."""
     while True:
@@ -134,6 +174,9 @@ def main():
 
         if ask_yes_no("\nDo you want to view previous calculations? (y/n): "):
             show_history(history)
+
+        if ask_yes_no("\nDo you want to export the history to CSV? (y/n): "):
+            export_history_to_csv(history)
 
         if not ask_to_repeat():
             print("Thank you for using Expense Splitter. Goodbye!")
