@@ -66,6 +66,30 @@ def get_tip_percentage():
         return tip_percent
 
 
+def ask_yes_no(question):
+    """Ask a yes/no question until the user answers. Returns True or False."""
+    while True:
+        answer = input(question).strip().lower()
+        if answer in ("y", "yes"):
+            return True
+        if answer in ("n", "no"):
+            return False
+        print("Please type 'y' for yes or 'n' for no.")
+
+
+def show_history(history):
+    """Print every calculation saved in the history list."""
+    print("\n--- Calculation History ---")
+    for number, entry in enumerate(history, start=1):
+        print(
+            f"{number}. Expense: {entry['expense']:.2f} | "
+            f"Tip: {entry['tip_percent']:.2f}% | "
+            f"People: {entry['people']} | "
+            f"Each pays: {entry['share']:.2f}"
+        )
+    print("---------------------------")
+
+
 def ask_to_repeat():
     """Ask if the user wants to do another calculation. Returns True or False."""
     while True:
@@ -79,6 +103,9 @@ def ask_to_repeat():
 
 def main():
     print("=== Expense Splitter ===")
+
+    # History lives in memory only and is lost when the program closes.
+    history = []
 
     while True:
         total = get_total_expense()
@@ -94,6 +121,19 @@ def main():
         print(f"Tip ({tip_percent:.2f}%):      {tip_amount:.2f}")
         print(f"Final total:        {final_total:.2f}")
         print(f"Each person should pay: {share:.2f}")
+
+        # Save this successful calculation.
+        history.append(
+            {
+                "expense": total,
+                "tip_percent": tip_percent,
+                "people": people,
+                "share": share,
+            }
+        )
+
+        if ask_yes_no("\nDo you want to view previous calculations? (y/n): "):
+            show_history(history)
 
         if not ask_to_repeat():
             print("Thank you for using Expense Splitter. Goodbye!")
